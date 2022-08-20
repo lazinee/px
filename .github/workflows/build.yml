@@ -15,7 +15,6 @@ jobs:
               with:
                   distribution: 'zulu'
                   java-version: ${{ matrix.java }}
-                  cache: gradle
             - name: Configure git
               run: |
                   git config --global user.email "no-reply@github.com"
