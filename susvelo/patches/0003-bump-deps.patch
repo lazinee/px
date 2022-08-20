@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Sat, 20 Aug 2022 11:33:05 +0700
+Subject: [PATCH] bump deps
+
+
+diff --git a/build.gradle b/build.gradle
+index 8291e276..a0dc691c 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -1,6 +1,6 @@
+ plugins {
+     id 'java'
+-    id 'com.github.johnrengelman.shadow' version '7.1.0' apply false
++    id 'com.github.johnrengelman.shadow' version '7.1.2' apply false
+     id 'org.cadixdev.licenser' version '0.6.1' apply false
+ }
+ 
+@@ -12,9 +12,9 @@ allprojects {
+         // dependency versions
+         adventureVersion = '4.10.1'
+         junitVersion = '5.7.0'
+-        slf4jVersion = '1.7.30'
+-        log4jVersion = '2.17.1'
+-        nettyVersion = '4.1.77.Final'
++        slf4jVersion = '1.7.36'
++        log4jVersion = '2.18.0'
++        nettyVersion = '4.1.79.Final'
+         guavaVersion = '25.1-jre'
+         checkerFrameworkVersion = '3.6.1'
+         configurateVersion = '3.7.3'
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+index 84d1f85f..ae04661e 100644
+--- a/gradle/wrapper/gradle-wrapper.properties
++++ b/gradle/wrapper/gradle-wrapper.properties
+@@ -1,5 +1,5 @@
+ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-7.3.1-bin.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-7.5.1-bin.zip
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
+-- 
+2.36.2
+
