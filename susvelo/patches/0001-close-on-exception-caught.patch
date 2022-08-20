@@ -1,0 +1,102 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Sat, 20 Aug 2022 10:35:10 +0700
+Subject: [PATCH] close on exception caught
+
+original PR: https://github.com/PaperMC/Velocity/pull/648
+
+diff --git a/proxy/src/main/java/com/velocitypowered/proxy/connection/MinecraftConnection.java b/proxy/src/main/java/com/velocitypowered/proxy/connection/MinecraftConnection.java
+index 7d08a303..2e37ef2c 100644
+--- a/proxy/src/main/java/com/velocitypowered/proxy/connection/MinecraftConnection.java
++++ b/proxy/src/main/java/com/velocitypowered/proxy/connection/MinecraftConnection.java
+@@ -168,6 +168,7 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
+         try {
+           sessionHandler.exception(cause);
+         } catch (Exception ex) {
++          ctx.close(); // Close connection on exception
+           logger.error("{}: exception handling exception in {}",
+               (association != null ? association : channel.remoteAddress()), sessionHandler, cause);
+         }
+@@ -191,6 +192,9 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
+       }
+ 
+       ctx.close();
++    } else {
++      ctx.close();
++      ctx.flush();
+     }
+   }
+ 
+diff --git a/proxy/src/main/java/com/velocitypowered/proxy/protocol/netty/GS4QueryHandler.java b/proxy/src/main/java/com/velocitypowered/proxy/protocol/netty/GS4QueryHandler.java
+index 22789efe..25453605 100644
+--- a/proxy/src/main/java/com/velocitypowered/proxy/protocol/netty/GS4QueryHandler.java
++++ b/proxy/src/main/java/com/velocitypowered/proxy/protocol/netty/GS4QueryHandler.java
+@@ -107,6 +107,8 @@ public class GS4QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
+     // Verify query packet magic
+     if (queryMessage.readUnsignedByte() != QUERY_MAGIC_FIRST
+         || queryMessage.readUnsignedByte() != QUERY_MAGIC_SECOND) {
++      ctx.close();
++      queryMessage.clear(); // Clear and close the channel on invalid magic
+       return;
+     }
+ 
+@@ -136,11 +138,13 @@ public class GS4QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
+         int challengeToken = queryMessage.readInt();
+         Integer session = sessions.getIfPresent(senderAddress);
+         if (session == null || session != challengeToken) {
++          ctx.close(); // Close the channel on invalid session
+           return;
+         }
+ 
+         // Check which query response client expects
+         if (queryMessage.readableBytes() != 0 && queryMessage.readableBytes() != 4) {
++          ctx.close(); // Close the channel on invalid query
+           return;
+         }
+ 
+@@ -193,6 +197,11 @@ public class GS4QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
+     }
+   }
+ 
++  @Override
++  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
++    ctx.close(); // Close the channel on exception
++  }
++
+   private static void writeString(ByteBuf buf, String string) {
+     buf.writeCharSequence(string, StandardCharsets.ISO_8859_1);
+     buf.writeByte(0x00);
+diff --git a/proxy/src/main/java/com/velocitypowered/proxy/protocol/netty/MinecraftDecoder.java b/proxy/src/main/java/com/velocitypowered/proxy/protocol/netty/MinecraftDecoder.java
+index 5243a679..0a20f8c4 100644
+--- a/proxy/src/main/java/com/velocitypowered/proxy/protocol/netty/MinecraftDecoder.java
++++ b/proxy/src/main/java/com/velocitypowered/proxy/protocol/netty/MinecraftDecoder.java
+@@ -68,8 +68,24 @@ public class MinecraftDecoder extends ChannelInboundHandlerAdapter {
+     }
+ 
+     int originalReaderIndex = buf.readerIndex();
+-    int packetId = ProtocolUtils.readVarInt(buf);
+-    MinecraftPacket packet = this.registry.createPacket(packetId);
++    int packetId;
++
++    try {
++      packetId = ProtocolUtils.readVarInt(buf);
++    } catch (Exception e) {
++      ctx.close(); // Close connection for invalid packet id
++      return;
++    }
++
++    MinecraftPacket packet;
++
++    try {
++      packet = this.registry.createPacket(packetId);
++    } catch (Exception e) {
++      ctx.close(); // Close connection for invalid packet creation
++      return;
++    }
++
+     if (packet == null) {
+       buf.readerIndex(originalReaderIndex);
+       ctx.fireChannelRead(buf);
+-- 
+2.36.2
+

@@ -1,0 +1,3 @@
+[submodule "susvelo/Velocity"]
+	path = susvelo/Velocity
+	url = https://github.com/PaperMC/Velocity.git
