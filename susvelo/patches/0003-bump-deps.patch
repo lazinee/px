@@ -5,7 +5,7 @@ Subject: [PATCH] bump deps
 
 
 diff --git a/build.gradle b/build.gradle
-index 8291e276..a0dc691c 100644
+index 23ffcf46..f94f58c7 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -1,6 +1,6 @@
@@ -16,19 +16,17 @@ index 8291e276..a0dc691c 100644
      id 'org.cadixdev.licenser' version '0.6.1' apply false
  }
  
-@@ -12,9 +12,9 @@ allprojects {
+@@ -12,8 +12,8 @@ allprojects {
          // dependency versions
          adventureVersion = '4.10.1'
          junitVersion = '5.7.0'
 -        slf4jVersion = '1.7.30'
 -        log4jVersion = '2.17.1'
--        nettyVersion = '4.1.77.Final'
 +        slf4jVersion = '1.7.36'
 +        log4jVersion = '2.18.0'
-+        nettyVersion = '4.1.79.Final'
+         nettyVersion = '4.1.80.Final'
          guavaVersion = '25.1-jre'
          checkerFrameworkVersion = '3.6.1'
-         configurateVersion = '3.7.3'
 diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
 index 84d1f85f..ae04661e 100644
 --- a/gradle/wrapper/gradle-wrapper.properties
@@ -41,5 +39,5 @@ index 84d1f85f..ae04661e 100644
  zipStoreBase=GRADLE_USER_HOME
  zipStorePath=wrapper/dists
 -- 
-2.36.2
+2.37.3
 
